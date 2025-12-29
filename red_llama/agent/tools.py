@@ -4,8 +4,9 @@ These tools simulate realistic agent capabilities while
 enabling security boundary testing.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from langchain_core.tools import BaseTool, tool
 from pydantic import BaseModel, Field

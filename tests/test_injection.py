@@ -225,14 +225,12 @@ class TestIdentityIntegrity:
             scopes={"files:read"},
         )
 
-        original_scopes = identity.scopes.copy()
-
         # Attempt to modify (in real code, this might happen through injection)
         # The Identity class uses a set which is mutable, but we test the pattern
-        try:
+        import contextlib
+
+        with contextlib.suppress(TypeError, AttributeError):
             identity.scopes.add("admin:*")
-        except (TypeError, AttributeError):
-            pass  # Good - immutable
 
         # If we can add, the test framework should catch this pattern
         # In production, Identity should use frozenset or be immutable
@@ -253,4 +251,3 @@ class TestIdentityIntegrity:
 
         # Should match exact scope
         assert identity.has_scope("files:read")
-

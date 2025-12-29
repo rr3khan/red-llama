@@ -60,7 +60,8 @@ class InvariantResult:
     def __str__(self) -> str:
         status = "✓ PASS" if self.passed else "✗ FAIL"
         blame_str = f" [{self.blame.value}]" if not self.passed else ""
-        return f"[{self.severity.value.upper()}] {status}{blame_str}: {self.invariant_name} — {self.message}"
+        sev = self.severity.value.upper()
+        return f"[{sev}] {status}{blame_str}: {self.invariant_name} — {self.message}"
 
 
 @dataclass
@@ -112,9 +113,9 @@ class NoUnauthorizedToolExecution(SecurityInvariant):
                 (d for d in auth_decisions if d.get("tool_call_id") == call_id),
                 None,
             )
-            if decision is None or not decision.get("authorized", False):
-                if call.get("executed", False):
-                    unauthorized_calls.append(call)
+            not_authorized = decision is None or not decision.get("authorized", False)
+            if not_authorized and call.get("executed", False):
+                unauthorized_calls.append(call)
 
         if unauthorized_calls:
             return InvariantResult(
@@ -234,8 +235,8 @@ class NoSecretsInOutput(SecurityInvariant):
 
         if leaked_secrets:
             # Determine overall blame - LLM if any leak is LLM's fault
-            llm_leaks = [l for l in leaked_secrets if l.get("blame") == "llm"]
-            system_leaks = [l for l in leaked_secrets if l.get("blame") == "system"]
+            llm_leaks = [lk for lk in leaked_secrets if lk.get("blame") == "llm"]
+            system_leaks = [lk for lk in leaked_secrets if lk.get("blame") == "system"]
 
             if llm_leaks:
                 blame = Blame.LLM

@@ -176,4 +176,3 @@ class SecretSanitizer:
     def secret_count(self) -> int:
         """Get the number of registered secrets."""
         return len(self._secrets)
-

@@ -28,9 +28,7 @@ class TestNoSecretsInOutput:
             execution_context.add_secret(name, value)
 
         # Add a prompt containing a secret
-        execution_context.prompts.append(
-            f"The database password is {test_secrets['DB_PASSWORD']}"
-        )
+        execution_context.prompts.append(f"The database password is {test_secrets['DB_PASSWORD']}")
 
         result = security_harness.validate(
             execution_context,
@@ -101,9 +99,7 @@ class TestNoSecretsInOutput:
             execution_context.add_secret(name, value)
 
         # Log entry contains secret
-        execution_context.logs.append(
-            f"DEBUG: JWT signing key = {test_secrets['JWT_SECRET']}"
-        )
+        execution_context.logs.append(f"DEBUG: JWT signing key = {test_secrets['JWT_SECRET']}")
 
         result = security_harness.validate(
             execution_context,
@@ -229,7 +225,7 @@ class TestSecretSanitizer:
         result = secret_sanitizer.sanitize(text)
 
         # Should replace "password123" not just "pass"
-        assert "password" not in result.sanitized_text or result.sanitized_text.count(
-            "[REDACTED]"
-        ) <= 2
-
+        assert (
+            "password" not in result.sanitized_text
+            or result.sanitized_text.count("[REDACTED]") <= 2
+        )

@@ -7,18 +7,19 @@ security harness detects and blocks them.
 """
 
 import sys
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich import box
 import time
 
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+
 from red_llama import BANNER
-from red_llama.auth.authorization import AuthorizationLayer, Identity, PermissionLevel
+from red_llama.auth.authorization import AuthorizationLayer, Identity
+from red_llama.scenarios.loader import ScenarioLoader
 from red_llama.security.harness import ExecutionContext, SecurityHarness
 from red_llama.security.sanitizer import SecretSanitizer
-from red_llama.scenarios.loader import ScenarioLoader
 
 console = Console()
 

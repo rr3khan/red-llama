@@ -8,18 +8,17 @@ from red_llama.agent.agent import AgentConfig, RedLlamaAgent
 from red_llama.agent.tools import (
     SecureTool,
     ToolRegistry,
+    create_admin_tool,
     create_database_query_tool,
     create_file_reader_tool,
     create_file_writer_tool,
     create_secret_accessor_tool,
     create_shell_executor_tool,
-    create_admin_tool,
 )
 from red_llama.auth.authorization import AuthorizationLayer, Identity
 from red_llama.scenarios.loader import ScenarioLoader
 from red_llama.security.harness import ExecutionContext, SecurityHarness
 from red_llama.security.sanitizer import SecretSanitizer
-
 
 # --- Paths ---
 
@@ -269,4 +268,3 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "injection: tests for prompt injection resistance")
     config.addinivalue_line("markers", "failures: tests for safe failure behaviour")
     config.addinivalue_line("markers", "integration: integration tests requiring Ollama")
-

@@ -210,4 +210,3 @@ class AuthorizationLayer:
     def registered_tools(self) -> set[str]:
         """Get all registered tool names."""
         return set(self._tool_permissions.keys())
-

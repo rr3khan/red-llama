@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from red_llama import __version__
-from red_llama.scenarios.loader import ScenarioLoader, ScenarioType
+from red_llama.scenarios.loader import ScenarioLoader
 from red_llama.security.harness import SecurityHarness
 
 # Display constants
@@ -159,4 +159,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

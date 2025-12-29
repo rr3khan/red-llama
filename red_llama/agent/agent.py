@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
-from langchain_core.tools import BaseTool
 from langchain_ollama import ChatOllama
 
 from red_llama.agent.tools import SecureTool, ToolRegistry
@@ -104,7 +103,7 @@ class RedLlamaAgent:
         if not self._tools_bound:
             tools = self.tool_registry.get_langchain_tools()
             if tools:
-                self._llm = self._llm.bind_tools(tools)
+                self._llm = self._llm.bind_tools(tools)  # type: ignore[assignment]
             self._tools_bound = True
 
     def register_tool(self, secure_tool: SecureTool) -> None:
@@ -167,12 +166,17 @@ class RedLlamaAgent:
                 messages.append(response)
 
                 if isinstance(response, AIMessage):
-                    ctx.responses.append(response.content or "")
+                    content = response.content
+                    if isinstance(content, list):
+                        content = str(content)
+                    ctx.responses.append(content or "")
 
                     # Check for tool calls
                     if response.tool_calls:
                         for tc in response.tool_calls:
-                            result = await self._execute_tool_call(tc, identity, ctx)
+                            result = await self._execute_tool_call(
+                                dict(tc), identity, ctx
+                            )
                             tool_call_results.append(result)
 
                             # Add tool result to messages

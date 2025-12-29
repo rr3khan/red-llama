@@ -9,10 +9,6 @@ import pytest
 
 from red_llama.auth.authorization import AuthorizationLayer, Identity
 from red_llama.security.harness import ExecutionContext, SecurityHarness
-from red_llama.security.invariants import (
-    NoUnauthorizedToolExecution,
-    UnknownToolsDenied,
-)
 
 
 class TestNoUnauthorizedToolExecution:
@@ -50,9 +46,7 @@ class TestNoUnauthorizedToolExecution:
 
         assert not result.passed, "Should fail when unauthorized tool is executed"
         assert len(result.critical_failures) > 0
-        assert any(
-            "unauthorized" in f.message.lower() for f in result.critical_failures
-        )
+        assert any("unauthorized" in f.message.lower() for f in result.critical_failures)
 
     @pytest.mark.security
     @pytest.mark.authorization
@@ -261,4 +255,3 @@ class TestAuthorizationLayer:
         assert log[0].tool_name == "read_file"
         assert log[1].tool_name == "write_file"
         assert log[2].tool_name == "unknown_tool"
-

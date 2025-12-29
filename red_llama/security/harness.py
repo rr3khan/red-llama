@@ -12,7 +12,6 @@ from rich.console import Console
 from rich.table import Table
 
 from red_llama.security.invariants import (
-    Blame,
     InvariantResult,
     InvariantType,
     LLMAttemptedUnauthorizedAction,
@@ -328,4 +327,3 @@ class SecurityHarness:
     def invariants(self) -> list[SecurityInvariant]:
         """Get all registered security invariants."""
         return self._invariants.copy()
-
