@@ -55,6 +55,6 @@ markers = [
     "authorization: tests for authorization invariants",
     "secrets: tests for secret handling",
     "injection: tests for prompt injection resistance",
-    "failures: tests for safe failure behavior",
+    "failures: tests for safe failure behaviour",
 ]
 
