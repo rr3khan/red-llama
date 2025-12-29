@@ -1,0 +1,259 @@
+# Red Llama — AI Security Regression Suite
+# Taskfile for consistent developer and CI workflows
+#
+# Install go-task: https://taskfile.dev/installation/
+# Usage: task <command>
+
+version: "3"
+
+vars:
+  PYTHON: python3
+  VENV: .venv
+  PYTEST_OPTS: -v --tb=short
+
+env:
+  PYTHONPATH: "{{.ROOT_DIR}}"
+
+tasks:
+  # ============================================
+  # Setup & Installation
+  # ============================================
+
+  setup:
+    desc: Set up the development environment
+    cmds:
+      - "{{.PYTHON}} -m venv {{.VENV}}"
+      - "{{.VENV}}/bin/pip install --upgrade pip"
+      - "{{.VENV}}/bin/pip install -e .[dev]"
+    status:
+      - test -d {{.VENV}}
+
+  install:
+    desc: Install dependencies only
+    cmds:
+      - "{{.VENV}}/bin/pip install -e .[dev]"
+    deps: [setup]
+
+  clean:
+    desc: Clean generated artifacts and caches
+    cmds:
+      - rm -rf {{.VENV}}
+      - rm -rf .pytest_cache
+      - rm -rf .mypy_cache
+      - rm -rf .ruff_cache
+      - rm -rf __pycache__
+      - rm -rf red_llama/__pycache__
+      - rm -rf red_llama/**/__pycache__
+      - rm -rf tests/__pycache__
+      - rm -rf .coverage
+      - rm -rf htmlcov
+      - rm -rf dist
+      - rm -rf *.egg-info
+      - echo "✓ Cleaned all artifacts"
+
+  # ============================================
+  # Testing
+  # ============================================
+
+  test:
+    desc: Run the full security regression test suite
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} tests/ --ignore=tests/test_example_failure.py"
+    deps: [install]
+
+  test:security:
+    desc: Run only security-critical tests
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m security tests/"
+    deps: [install]
+
+  test:auth:
+    desc: Run authorization tests
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m authorization tests/"
+    deps: [install]
+
+  test:secrets:
+    desc: Run secret handling tests
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m secrets tests/"
+    deps: [install]
+
+  test:injection:
+    desc: Run prompt injection tests
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m injection tests/"
+    deps: [install]
+
+  test:failures:
+    desc: Run failure handling tests
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m failures tests/"
+    deps: [install]
+
+  test:integration:
+    desc: Run integration tests (requires Ollama)
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m integration tests/"
+    deps: [install]
+
+  test:unit:
+    desc: Run unit tests only (no Ollama required)
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} -m 'not integration' tests/"
+    deps: [install]
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - "{{.VENV}}/bin/pip install pytest-cov"
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} --cov=red_llama --cov-report=term-missing --cov-report=html tests/"
+    deps: [install]
+
+  test:example-failure:
+    desc: "🔴 Run the example failure test (shows what a security violation looks like)"
+    cmds:
+      - "{{.VENV}}/bin/pytest {{.PYTEST_OPTS}} tests/test_example_failure.py || true"
+    deps: [install]
+
+  # ============================================
+  # Linting & Type Checking
+  # ============================================
+
+  lint:
+    desc: Run all linting checks
+    cmds:
+      - task: lint:ruff
+      - task: lint:mypy
+
+  lint:ruff:
+    desc: Run ruff linter
+    cmds:
+      - "{{.VENV}}/bin/ruff check red_llama/ tests/"
+    deps: [install]
+
+  lint:mypy:
+    desc: Run mypy type checker
+    cmds:
+      - "{{.VENV}}/bin/mypy red_llama/"
+    deps: [install]
+
+  format:
+    desc: Format code with ruff
+    cmds:
+      - "{{.VENV}}/bin/ruff format red_llama/ tests/"
+      - "{{.VENV}}/bin/ruff check --fix red_llama/ tests/"
+    deps: [install]
+
+  # ============================================
+  # CI Pipeline
+  # ============================================
+
+  ci:
+    desc: Run the full CI pipeline (same as GitHub Actions)
+    cmds:
+      - task: lint
+      - task: test:unit
+      - echo "✓ CI checks passed"
+
+  ci:full:
+    desc: Run full CI including integration tests
+    cmds:
+      - task: lint
+      - task: test
+      - echo "✓ Full CI checks passed"
+
+  # ============================================
+  # Development Helpers
+  # ============================================
+
+  ollama:check:
+    desc: Check if Ollama is running and model is available
+    cmds:
+      - |
+        if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+          echo "✓ Ollama is running"
+          if curl -s http://localhost:11434/api/tags | grep -q "llama3.2"; then
+            echo "✓ llama3.2 model is available"
+          else
+            echo "⚠ llama3.2 model not found. Run: ollama pull llama3.2"
+          fi
+        else
+          echo "✗ Ollama is not running. Start it with: ollama serve"
+          exit 1
+        fi
+
+  ollama:pull:
+    desc: Pull the required Ollama model
+    cmds:
+      - ollama pull llama3.2
+
+  run:
+    desc: Run Red Llama CLI (after setup)
+    cmds:
+      - "{{.VENV}}/bin/red-llama {{.CLI_ARGS}}"
+    deps: [install]
+
+  cli:
+    desc: Run Red Llama CLI info
+    cmds:
+      - "{{.VENV}}/bin/red-llama"
+    deps: [install]
+
+  cli:list:
+    desc: List all test scenarios
+    cmds:
+      - "{{.VENV}}/bin/red-llama list"
+    deps: [install]
+
+  cli:validate:
+    desc: Validate scenario YAML files
+    cmds:
+      - "{{.VENV}}/bin/red-llama validate"
+    deps: [install]
+
+  scenarios:list:
+    desc: List all available test scenarios
+    cmds:
+      - |
+        echo "=== Authorization Scenarios ==="
+        ls -1 scenarios/authorization/*.yaml 2>/dev/null || echo "  (none)"
+        echo ""
+        echo "=== Secret Handling Scenarios ==="
+        ls -1 scenarios/secrets/*.yaml 2>/dev/null || echo "  (none)"
+        echo ""
+        echo "=== Injection Scenarios ==="
+        ls -1 scenarios/injection/*.yaml 2>/dev/null || echo "  (none)"
+        echo ""
+        echo "=== Failure Scenarios ==="
+        ls -1 scenarios/failures/*.yaml 2>/dev/null || echo "  (none)"
+
+  # ============================================
+  # Demo
+  # ============================================
+
+  demo:
+    desc: "🔴 Run interactive demo showcasing all security capabilities"
+    cmds:
+      - "{{.VENV}}/bin/python -m red_llama.demo"
+    deps: [install]
+
+  demo:live:
+    desc: "🔴 Run LIVE demo against Ollama with real adversarial prompts"
+    cmds:
+      - "{{.VENV}}/bin/python -m red_llama.demo_live"
+    deps: [install]
+
+  # ============================================
+  # Documentation & Help
+  # ============================================
+
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  default:
+    desc: Default task - show help
+    cmds:
+      - task: help
