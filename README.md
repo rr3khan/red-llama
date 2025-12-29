@@ -175,6 +175,11 @@ task cli:validate  # Validate scenario files
 
 ```
 red-llama/
+├── .github/                 # GitHub configuration
+│   ├── workflows/
+│   │   └── ci.yml           # CI pipeline
+│   ├── dependabot.yml       # Dependency updates
+│   └── pull_request_template.md
 ├── red_llama/               # Main package
 │   ├── agent/               # LangChain agent implementation
 │   │   ├── agent.py         # RedLlamaAgent class
@@ -487,6 +492,38 @@ task cli:validate
 # or
 red-llama validate
 ```
+
+---
+
+## Continuous Integration
+
+Red Llama includes a GitHub Actions workflow that runs on every push and PR to `master`.
+
+### CI Jobs
+
+| Job                          | Description                                                |
+| ---------------------------- | ---------------------------------------------------------- |
+| **Lint & Format Check**      | Runs `ruff format --check` and `ruff check`                |
+| **Type Check**               | Runs `mypy` on the codebase                                |
+| **Test**                     | Runs pytest on Python 3.11 and 3.12                        |
+| **Security Invariant Tests** | Runs tests marked with `@pytest.mark.security`             |
+| **Validate Scenarios**       | Validates all YAML scenario files                          |
+| **Build Package**            | Builds the package (runs after lint, typecheck, test pass) |
+
+### Branch Protection
+
+Recommended branch protection rules for `master`:
+
+- Require status checks to pass before merging
+- Required checks: `Lint & Format Check`, `Type Check`, `Test`, `Validate Scenarios`
+- Require branches to be up to date before merging
+
+### Dependabot
+
+Dependabot is configured to:
+
+- Update Python dependencies weekly
+- Update GitHub Actions weekly
 
 ---
 
