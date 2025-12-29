@@ -223,7 +223,7 @@ class TestAuthorizationLayer:
         identity = Identity(
             id="wildcard-user",
             name="wildcard",
-            scopes={"admin:*"},
+            scopes=frozenset({"admin:*"}),
         )
 
         auth_layer.register_tool(

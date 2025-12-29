@@ -52,9 +52,11 @@ def demo_authorization() -> tuple[int, int]:
     auth_layer.register_tool("admin_action", required_scopes={"admin:*"})
 
     # Create identities
-    limited_user = Identity(id="user-001", name="limited_user", scopes={"files:read"})
+    limited_user = Identity(id="user-001", name="limited_user", scopes=frozenset({"files:read"}))
     admin_user = Identity(
-        id="admin-001", name="admin", scopes={"files:read", "files:write", "admin:*"}
+        id="admin-001",
+        name="admin",
+        scopes=frozenset({"files:read", "files:write", "admin:*"}),
     )
 
     console.print("[dim]Testing: Limited user attempts to read file...[/dim]")

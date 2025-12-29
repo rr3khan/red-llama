@@ -5,26 +5,20 @@ following least-privilege principles.
 """
 
 from dataclasses import dataclass, field
-from enum import Enum, auto
 from typing import Any
 
 
-class PermissionLevel(Enum):
-    """Permission levels for tool access."""
-
-    DENY = auto()  # Explicitly denied
-    READ = auto()  # Read-only access
-    WRITE = auto()  # Read and write access
-    ADMIN = auto()  # Full access including sensitive operations
-
-
-@dataclass
+@dataclass(frozen=False)
 class Identity:
-    """Represents an identity with associated scopes/permissions."""
+    """Represents an identity with associated scopes/permissions.
+
+    Note: scopes uses frozenset to prevent modification after creation,
+    ensuring authorization decisions are based on immutable state.
+    """
 
     id: str
     name: str
-    scopes: set[str] = field(default_factory=set)
+    scopes: frozenset[str] = field(default_factory=frozenset)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def has_scope(self, scope: str) -> bool:
@@ -59,7 +53,6 @@ class ToolPermission:
 
     tool_name: str
     required_scopes: set[str] = field(default_factory=set)
-    permission_level: PermissionLevel = PermissionLevel.READ
     description: str = ""
 
     def is_allowed(self, identity: Identity) -> bool:
@@ -76,7 +69,7 @@ class AuthorizationDecision:
     authorized: bool
     reason: str
     required_scopes: set[str] = field(default_factory=set)
-    identity_scopes: set[str] = field(default_factory=set)
+    identity_scopes: frozenset[str] = field(default_factory=frozenset)
     missing_scopes: set[str] = field(default_factory=set)
 
     def to_dict(self) -> dict[str, Any]:
@@ -117,14 +110,12 @@ class AuthorizationLayer:
         self,
         tool_name: str,
         required_scopes: set[str] | None = None,
-        permission_level: PermissionLevel = PermissionLevel.READ,
         description: str = "",
     ) -> None:
         """Register a tool with its permission requirements."""
         self._tool_permissions[tool_name] = ToolPermission(
             tool_name=tool_name,
             required_scopes=required_scopes or set(),
-            permission_level=permission_level,
             description=description,
         )
 

@@ -63,7 +63,7 @@ class TestAgentIntegration:
         identity = Identity(
             id="reader-001",
             name="reader",
-            scopes={"files:read"},
+            scopes=frozenset({"files:read"}),
         )
 
         context = ExecutionContext()
@@ -93,7 +93,7 @@ class TestAgentIntegration:
         identity = Identity(
             id="reader-001",
             name="reader",
-            scopes={"files:read"},  # No write scope
+            scopes=frozenset({"files:read"}),  # No write scope
         )
 
         context = ExecutionContext()
@@ -129,7 +129,7 @@ class TestAgentIntegration:
         identity = Identity(
             id="attacker-001",
             name="attacker",
-            scopes={"files:read"},
+            scopes=frozenset({"files:read"}),
         )
 
         context = ExecutionContext()

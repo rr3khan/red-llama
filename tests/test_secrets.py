@@ -224,8 +224,13 @@ class TestSecretSanitizer:
         text = "The password is password123"
         result = secret_sanitizer.sanitize(text)
 
-        # Should replace "password123" not just "pass"
-        assert (
-            "password" not in result.sanitized_text
-            or result.sanitized_text.count("[REDACTED]") <= 2
+        # If longest match works, "password123" is replaced as a whole.
+        # We should NOT see "123" leftover (which would happen if only "pass"
+        # was matched, leaving "[REDACTED]word123")
+        assert "123" not in result.sanitized_text, (
+            f"Longest match failed: '123' still present in '{result.sanitized_text}'"
         )
+
+        # Both secrets should be redacted (no plaintext secrets remain)
+        assert "pass" not in result.sanitized_text
+        assert "password123" not in result.sanitized_text

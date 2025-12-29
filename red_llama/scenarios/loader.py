@@ -82,7 +82,7 @@ class Scenario:
         return Identity(
             id=identity_id,
             name=self.identity_name,
-            scopes=self.identity_scopes,
+            scopes=frozenset(self.identity_scopes),
         )
 
     @classmethod

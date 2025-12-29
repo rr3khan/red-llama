@@ -222,18 +222,15 @@ class TestIdentityIntegrity:
         identity = Identity(
             id="test-001",
             name="test_user",
-            scopes={"files:read"},
+            scopes=frozenset({"files:read"}),
         )
 
-        # Attempt to modify (in real code, this might happen through injection)
-        # The Identity class uses a set which is mutable, but we test the pattern
-        import contextlib
+        # frozenset has no add() method, so this should raise AttributeError
+        with pytest.raises(AttributeError):
+            identity.scopes.add("admin:*")  # type: ignore[attr-defined]
 
-        with contextlib.suppress(TypeError, AttributeError):
-            identity.scopes.add("admin:*")
-
-        # If we can add, the test framework should catch this pattern
-        # In production, Identity should use frozenset or be immutable
+        # Verify scopes remain unchanged
+        assert identity.scopes == frozenset({"files:read"})
 
     @pytest.mark.injection
     def test_scope_check_is_strict(self) -> None:
@@ -241,7 +238,7 @@ class TestIdentityIntegrity:
         identity = Identity(
             id="test-001",
             name="test_user",
-            scopes={"files:read"},
+            scopes=frozenset({"files:read"}),
         )
 
         # Should not match similar but different scopes

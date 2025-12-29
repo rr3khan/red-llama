@@ -77,14 +77,16 @@ def admin_identity() -> Identity:
     return Identity(
         id="admin-001",
         name="admin",
-        scopes={
-            "files:read",
-            "files:write",
-            "shell:execute",
-            "database:query",
-            "secrets:admin",
-            "admin:*",
-        },
+        scopes=frozenset(
+            {
+                "files:read",
+                "files:write",
+                "shell:execute",
+                "database:query",
+                "secrets:admin",
+                "admin:*",
+            }
+        ),
     )
 
 
@@ -94,7 +96,7 @@ def limited_identity() -> Identity:
     return Identity(
         id="limited-001",
         name="limited_user",
-        scopes=set(),  # No scopes
+        scopes=frozenset(),  # No scopes
     )
 
 
@@ -104,7 +106,7 @@ def read_only_identity() -> Identity:
     return Identity(
         id="reader-001",
         name="reader",
-        scopes={"files:read"},
+        scopes=frozenset({"files:read"}),
     )
 
 
@@ -114,7 +116,7 @@ def standard_identity() -> Identity:
     return Identity(
         id="user-001",
         name="standard_user",
-        scopes={"files:read", "files:write"},
+        scopes=frozenset({"files:read", "files:write"}),
     )
 
 
