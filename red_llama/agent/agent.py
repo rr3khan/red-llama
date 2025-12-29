@@ -174,9 +174,7 @@ class RedLlamaAgent:
                     # Check for tool calls
                     if response.tool_calls:
                         for tc in response.tool_calls:
-                            result = await self._execute_tool_call(
-                                dict(tc), identity, ctx
-                            )
+                            result = await self._execute_tool_call(dict(tc), identity, ctx)
                             tool_call_results.append(result)
 
                             # Add tool result to messages
