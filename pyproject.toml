@@ -1,0 +1,60 @@
+[project]
+name = "red-llama"
+version = "0.1.0"
+description = "AI Security Regression Suite for Agentic Tooling"
+readme = "readme.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Red Llama Team" }]
+
+dependencies = [
+    "langchain>=1.0.0",
+    "langchain-ollama>=1.0.0",
+    "langchain-core>=1.0.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "rich>=13.0",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13",
+    "types-PyYAML>=6.0",
+]
+
+[project.scripts]
+red-llama = "red_llama.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "S"]
+ignore = ["S101"]  # Allow assert in tests
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+markers = [
+    "security: marks tests as security-critical (fail fast)",
+    "authorization: tests for authorization invariants",
+    "secrets: tests for secret handling",
+    "injection: tests for prompt injection resistance",
+    "failures: tests for safe failure behavior",
+]
+
