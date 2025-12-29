@@ -2,10 +2,9 @@
 name = "red-llama"
 version = "0.1.0"
 description = "AI Security Regression Suite for Agentic Tooling"
-readme = "readme.md"
+readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
-authors = [{ name = "Red Llama Team" }]
+authors = [{ name = "Me" }]
 
 dependencies = [
     "langchain>=1.0.0",
